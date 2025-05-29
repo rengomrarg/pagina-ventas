@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Counter Webpage</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      margin: 0;
+    }
+    section {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-bottom: 15px;
+    }
+    .counter-buttons button,
+    .num-pad button {
+      font-size: 18px;
+      padding: 15px;
+      margin: 5px;
+      width: 60px;
+      height: 60px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .counter-buttons button {
+      background-color: #007BFF;
+      color: #fff;
+    }
+    .num-pad button {
+      background-color: #28A745;
+      color: #fff;
+    }
+    .clear-btn {
+      background-color: #dc3545;
+    }
+    .display {
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    .result {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .insufficient {
+      color: red;
+    }
+    .actions button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .reset-btn {
+      background-color: #6c757d;
+      color: white;
+    }
+    .submit-btn {
+      background-color: #17a2b8;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Section 1 -->
+<section id="section1">
+  <h2>ARTICULOS</h2>
+  <div class="counter-buttons" id="counterButtons">
+    <button onclick="increment(0)">0</button>
+    <LABel>ROJO</LABel>
+    <button onclick="increment(1)">0</button>
+    <LABel>RAJAS</LABel>
+    <button onclick="increment(2)">0</button>
+    <LABel>JALAPENO</LABel> 
+    <button onclick="increment(3)">0</button>
+    <LABel>PIÑA</LABel>
+    <button onclick="increment(4)">0</button>
+    <LABel>ANIS</LABel>
+    <button onclick="increment(5)">0</button>
+    <LABel>VASO</LABel>
+    <button onclick="increment(6)">0</button> 
+    <LABel>LITRO</LABel>
+  </div>
+  
+  
+
+
+  <p class="display">TOTAL: $ <span id="counterMaster">0</span></p>
+</section>
+
+<!-- Section 2 -->
+<section id="section2">
+  <h2>INGRESAR PAGO</h2>
+  <div class="num-pad">
+    <div>
+      <button onclick="appendDigit('1')">1</button>
+      <button onclick="appendDigit('2')">2</button>
+      <button onclick="appendDigit('3')">3</button>
+    </div>
+    <div>
+      <button onclick="appendDigit('4')">4</button>
+      <button onclick="appendDigit('5')">5</button>
+      <button onclick="appendDigit('6')">6</button>
+    </div>
+    <div>
+      <button onclick="appendDigit('7')">7</button>
+      <button onclick="appendDigit('8')">8</button>
+      <button onclick="appendDigit('9')">9</button>
+    </div>
+    <div>
+      <button class="clear-btn" onclick="clearInput()">C</button>
+      <button onclick="appendDigit('0')">0</button>
+    </div>
+  </div>
+  <p class="display">CANTIDAD: $<span id="enteredAmount">0</span></p>
+</section>
+
+<!-- Section 3 -->
+<section id="section3">
+  <h2>CAMBIO $ </h2>
+  <p class="result" id="result">0</p>
+</section>
+
+<!-- Section 4 -->
+<section id="section4">
+  <h2>Section 4: Actions</h2>
+  <div class="actions">
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+    <button class="submit-btn" onclick="submitGet()">Submit</button>
+  </div>
+</section>
+
+<script>
+  const counters = Array(7).fill(0);
+  const multipliers = [16, 16, 16, 17, 16, 20, 50];
+  let input = '';
+
+  function increment(index) {
+    counters[index]++;
+    updateCounters();
+  }
+
+  function updateCounters() {
+    const buttons = document.querySelectorAll('#counterButtons button');
+    buttons.forEach((btn, i) => {
+      btn.textContent = counters[i];
+    });
+    const master = counters.reduce((sum, val, i) => sum + val * multipliers[i], 0);
+    document.getElementById('counterMaster').textContent = master;
+    updateResult();
+  }
+
+  function appendDigit(d) {
+    input += d;
+    updateInput();
+  }
+
+  function clearInput() {
+    input = '';
+    updateInput();
+  }
+
+  function updateInput() {
+    document.getElementById('enteredAmount').textContent = input || '0';
+    updateResult();
+  }
+
+  function updateResult() {
+    const entered = parseInt(input || '0', 10);
+    const master = counters.reduce((sum, val, i) => sum + val * multipliers[i], 0);
+    const diff = entered - master;
+    const resultEl = document.getElementById('result');
+
+    if (diff < 0) {
+      resultEl.textContent = "dinero insuficiente";
+      resultEl.classList.add('insufficient');
+    } else {
+      resultEl.textContent = diff;
+      resultEl.classList.remove('insufficient');
+    }
+  }
+
+  function resetAll() {
+    for (let i = 0; i < counters.length; i++) counters[i] = 0;
+    input = '';
+    updateCounters();
+    updateInput();
+  }
+
+  function submitGet() {
+    const params = counters.map((val, idx) => `c${idx+1}=${val}`).join('&');
+    const url = `http://n8n.fidach.top/webhook/d6216216-b143-489d-a2b6-5885fadde146?${params}`;
+    window.location.href = url;
+  }
+</script>
+
+</body>
+</html>
